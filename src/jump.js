@@ -3,6 +3,7 @@ import easeInOutQuad from './easing'
 export default class Jump {
   jump(target, options = {}) {
     this.start = window.pageYOffset
+    this.target = target
 
     this.options = {
       duration: options.duration,
@@ -11,9 +12,13 @@ export default class Jump {
       easing: options.easing || easeInOutQuad
     }
 
-    this.distance = typeof target === 'string'
-      ? this.options.offset + document.querySelector(target).getBoundingClientRect().top
-      : target
+    this.toElement = typeof this.target === 'string'
+      ? document.querySelector(this.target)
+      : false
+
+    this.distance = this.toElement
+      ? this.options.offset + this.toElement.getBoundingClientRect().top
+      : this.target
 
     this.duration = typeof this.options.duration === 'function'
       ? this.options.duration(this.distance)
@@ -39,6 +44,11 @@ export default class Jump {
 
   _end() {
     window.scrollTo(0, this.start + this.distance)
+
+    if(this.toElement) {
+      this.toElement.setAttribute('tabindex', '-1')
+      this.toElement.focus()
+    }
 
     typeof this.options.callback === 'function' && this.options.callback()
     this.timeStart = false
