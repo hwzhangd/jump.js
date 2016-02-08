@@ -11,13 +11,21 @@ export default class Jump {
       easing: options.easing || easeInOutQuad
     }
 
-    this.target = typeof target === 'string'
-      ? document.querySelector(target)
-      : target;
+    // based on typeof target, determine jump distance
+    switch(typeof target) {
+      case 'string':
+        this.distance = this.options.offset + document.querySelector(target).getBoundingClientRect().top
+      break
 
-    this.distance = typeof target === 'number'
-      ? target
-      : this.options.offset + target.getBoundingClientRect().top;
+      case 'number':
+        this.distance = target
+      break
+
+      default:
+        // assume element node
+        this.distance = this.options.offset + target.getBoundingClientRect().top
+      break
+    }
 
     this.duration = typeof this.options.duration === 'function'
       ? this.options.duration(this.distance)
